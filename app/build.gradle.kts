@@ -39,6 +39,14 @@ android {
 }
 
 dependencies {
+    implementation("org.opencv:opencv:4.10.0")
+    implementation(libs.androidx.constraintlayout) // NO UPDATE
+
+    val cameraVersion = "1.4.2"
+    implementation("androidx.camera:camera-camera2:$cameraVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraVersion")
+    implementation("androidx.camera:camera-view:$cameraVersion")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.appcompat)
