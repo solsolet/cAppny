@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -19,6 +20,8 @@ import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import androidx.core.graphics.createBitmap
+import org.opencv.core.Core
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        enableEdgeToEdge()
 
         // Inicializar OpenCV antes de usarlo
         if (!OpenCVLoader.initLocal()) {
@@ -138,8 +142,18 @@ class MainActivity : AppCompatActivity() {
         val src = Mat()
         Utils.bitmapToMat(bitmap, src)   // Bitmap → Mat (RGBA, 4 channels)
 
+        // Handle frame rotation reported by CameraX
+        val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+        val input = Mat()
+        when (rotationDegrees) {
+            90  -> Core.rotate(src, input, Core.ROTATE_90_CLOCKWISE)
+            180 -> Core.rotate(src, input, Core.ROTATE_180)
+            270 -> Core.rotate(src, input, Core.ROTATE_90_COUNTERCLOCKWISE)
+            else -> src.copyTo(input)
+        }
+
         val gray = Mat()
-        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGBA2GRAY)  // RGBA → Grayscale
+        Imgproc.cvtColor(input, gray, Imgproc.COLOR_RGBA2GRAY)  // RGBA → Grayscale
 
         val blurred = Mat()
         // GaussianBlur needs an odd kernel size. blurSize=1 means no blur (1×1 kernel)
@@ -151,9 +165,7 @@ class MainActivity : AppCompatActivity() {
 
         // --- Convert result back to Bitmap and update UI ---
         // edges is a single-channel (grayscale) Mat; createBitmap needs ARGB_8888
-        val resultBitmap = Bitmap.createBitmap(
-            edges.cols(), edges.rows(), Bitmap.Config.ARGB_8888
-        )
+        val resultBitmap = createBitmap(edges.cols(), edges.rows())
         Utils.matToBitmap(edges, resultBitmap)
 
         // UI updates must happen on the main thread
@@ -163,6 +175,7 @@ class MainActivity : AppCompatActivity() {
 
         // --- Release ALL Mat objects to avoid native memory leaks ---
         src.release()
+        input.release()
         gray.release()
         blurred.release()
         edges.release()
