@@ -2,10 +2,8 @@ package es.ua.eps.cappny
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -21,6 +19,8 @@ import org.opencv.imgproc.Imgproc
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import androidx.core.graphics.createBitmap
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import org.opencv.core.Core
 
 class MainActivity : AppCompatActivity() {
@@ -36,7 +36,19 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        enableEdgeToEdge()
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Top: prevent camera preview from going under the notch
+            binding.previewView.setPadding(0, systemBars.top, 0, 0)
+            // Bottom: prevent control panel from going under the navigation bar
+            binding.controlPanel.setPadding(
+                binding.controlPanel.paddingLeft,
+                binding.controlPanel.paddingTop,
+                binding.controlPanel.paddingRight,
+                systemBars.bottom + resources.getDimensionPixelSize(R.dimen.panel_padding)
+            )
+            insets
+        }
 
         // Inicializar OpenCV antes de usarlo
         if (!OpenCVLoader.initLocal()) {

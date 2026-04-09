@@ -21,6 +21,7 @@
         android:id="@+id/overlayView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="TODO"
         android:scaleType="fitXY"
         app:layout_constraintTop_toTopOf="@id/previewView"
         app:layout_constraintBottom_toBottomOf="@id/previewView"
@@ -34,7 +35,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#CC000000"
-        android:padding="16dp"
+        android:paddingLeft="16dp"
+        android:paddingTop="16dp"
+        android:paddingRight="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -44,14 +47,14 @@
             android:id="@+id/btnStartStop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Start"
+            android:text="@string/start"
             android:layout_marginBottom="12dp"/>
 
         <!-- Blur slider -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Blur"
+            android:text="@string/blur"
             android:textColor="#FFFFFF"/>
         <SeekBar
             android:id="@+id/sliderBlur"
@@ -65,7 +68,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Edge"
+            android:text="@string/edge"
             android:textColor="#FFFFFF"/>
         <SeekBar
             android:id="@+id/sliderEdge"
@@ -79,7 +82,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gradient Angle"
+            android:text="@string/gradient_angle"
             android:textColor="#FFFFFF"/>
         <SeekBar
             android:id="@+id/sliderGradient"

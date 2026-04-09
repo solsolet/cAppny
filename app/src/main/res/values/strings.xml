@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">cAppny</string>
+    <string name="start">Start</string>
+    <string name="blur">Blur</string>
+    <string name="edge">Edge</string>
+    <string name="gradient_angle">Gradient Angle</string>
 </resources>
