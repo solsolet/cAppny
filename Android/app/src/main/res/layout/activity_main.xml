@@ -21,7 +21,7 @@
         android:id="@+id/overlayView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:contentDescription="TODO"
+        android:contentDescription="@string/camera_preview"
         android:scaleType="fitXY"
         app:layout_constraintTop_toTopOf="@id/previewView"
         app:layout_constraintBottom_toBottomOf="@id/previewView"

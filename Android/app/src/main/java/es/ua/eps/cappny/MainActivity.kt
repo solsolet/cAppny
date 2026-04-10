@@ -26,9 +26,7 @@ import org.opencv.core.Core
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
     private lateinit var cameraExecutor: ExecutorService
-
     private var isProcessing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +34,8 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Fix for Notch / Action buttons
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             // Top: prevent camera preview from going under the notch
