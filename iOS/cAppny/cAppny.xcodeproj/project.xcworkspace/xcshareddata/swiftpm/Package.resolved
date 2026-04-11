@@ -1,0 +1,15 @@
+{
+  "originHash" : "f6c1788fa483e015f5942023af2c9ae9ee24ddee0377e64331a4a62019604e38",
+  "pins" : [
+    {
+      "identity" : "opencv-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/yeatse/opencv-spm",
+      "state" : {
+        "revision" : "dd26dba92773b39488768888c107e5ef6b0e7c1b",
+        "version" : "4.10.0"
+      }
+    }
+  ],
+  "version" : 3
+}

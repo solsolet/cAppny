@@ -92,6 +92,7 @@ OpenCV se descarga automáticamente vía Gradle desde Maven Central. **No está 
 
 ### iOS
 
+
 ## Problemas encontrados
 ### El overlay de bordes no coincidía con el preview
  
