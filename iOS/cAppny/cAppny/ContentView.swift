@@ -28,11 +28,16 @@ struct ContentView: View {
 
             // Layer 2 — Edge detection overlay
             if let edgeImage = cameraManager.edgeImage {
-                Image(uiImage: edgeImage)
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)  // let taps pass through to controls below
+                GeometryReader { geo in
+                    Image(uiImage: edgeImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                        .ignoresSafeArea()
+                        .allowsHitTesting(false)
+                }
+                .ignoresSafeArea()
             }
 
             // Layer 3 — Control panel (top, anchored to bottom)
