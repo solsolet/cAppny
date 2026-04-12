@@ -9,30 +9,20 @@ import AVFoundation
 import UIKit
 import Combine
 
-// ObservableObject lets SwiftUI views subscribe to changes in this class.
-// When we publish a new processed image, the view automatically re-renders.
 class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
-    // @Published: any SwiftUI view observing this object will redraw
-    // when this value changes — this is how we push the result to the UI
     @Published var edgeImage: UIImage? = nil
 
-    // These are set by the SwiftUI sliders and read on the video thread
-    // They don't need to be @Published because we don't need the UI
-    // to react to them — we just read them when processing each frame
     var blurProgress: Float = 2
     var edgeProgress: Float = 50
     var gradientProgress: Float = 0
     var isProcessing: Bool = false
 
     let captureSession = AVCaptureSession()
-    private var previewLayer: AVCaptureVideoPreviewLayer?
 
     override init() {
         super.init()
     }
-
-    // MARK: - Setup
 
     func requestPermissionAndSetup() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -55,7 +45,7 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
         guard let camera = AVCaptureDevice.default(
             .builtInWideAngleCamera, for: .video, position: .back
         ) else {
-            print("No back camera found — are you on a simulator?")
+            print("No back camera found")
             return
         }
 
@@ -83,9 +73,13 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
             captureSession.addOutput(videoOutput)
         }
 
-        // Fix orientation to portrait
+        // Fix orientation
         if let connection = videoOutput.connection(with: .video) {
-            connection.videoOrientation = .portrait
+            if #available(iOS 17.0, *) {
+                connection.videoRotationAngle = 90
+            } else {
+                connection.videoOrientation = .portrait
+            }
         }
 
         DispatchQueue.global(qos: .userInitiated).async {
@@ -99,23 +93,16 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
         }
     }
 
-    // MARK: - Frame processing
-
     func captureOutput(_ output: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
 
         guard isProcessing else { return }
 
-        // Convert slider floats → OpenCV parameters
-        // Same formulas as Android:
-        // Blur:     v * 2 + 1  → always odd (1, 3, 5 ...)
-        // Edge:     low = v,  high = v * 3
-        // Gradient: v * 2 + 3 → 3, 5, or 7
-        let blurSize     = Int32(blurProgress) * 2 + 1
-        let lowThreshold = Double(edgeProgress)
+        let blurSize      = Int32(blurProgress) * 2 + 1
+        let lowThreshold  = Double(edgeProgress)
         let highThreshold = lowThreshold * 3.0
-        let apertureSize = Int32(gradientProgress) * 2 + 3
+        let apertureSize  = Int32(gradientProgress) * 2 + 3
 
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
@@ -124,7 +111,6 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return }
         let uiImage = UIImage(cgImage: cgImage)
 
-        // Call OpenCV — identical to the Storyboard version
         let result = OpenCVWrapper.processImage(
             uiImage,
             withBlurSize: blurSize,
@@ -133,7 +119,6 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
             apertureSize: apertureSize
         )
 
-        // Publish result → SwiftUI view redraws automatically
         DispatchQueue.main.async { [weak self] in
             self?.edgeImage = result
         }
